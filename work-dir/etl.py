@@ -34,10 +34,10 @@ class ETLProcessor:
     def transform(self, bgg_df, melissa_df):
 
         # 1. keep only bgg's "avg" and "rank"
-        bgg_df = bgg_df.drop("abstracts_rank", "cgs_rank", "childrensgames_rank", "familygames_rank", "partygames_rank", "strategygames_rank", "thematic_rank", "wargames_rank")
+        bgg_df = bgg_df.select("id", "name", "yearpublished", "usersrated", "average", "bayesaverage", "is_expansion")
 
         # 2. drop "BGG Rank" and "Rating Average" from melissa
-        melissa_df = melissa_df.select("ID", "Mechanics", "Domains", "Complexity Average", "Owned Users", "Min Players", "Max Players", "Play Time")
+        melissa_df = melissa_df.select("ID", "Mechanics", "Domains", "Complexity Average", "Owned Users", "Min Players", "Min Age", "Max Players", "Play Time")
         
         # clean column names
         for column in bgg_df.columns:
@@ -52,20 +52,19 @@ class ETLProcessor:
         game_df = master_df.select(
             F.col("id").alias("game_id"),
             F.col("name"),
-            F.col("year_published"),
+            F.col("yearpublished"),
             F.col("min_players"),
             F.col("max_players"),
-            F.col("play_time".alias("avg_playtime")),
+            F.col("play_time").alias("avg_playtime"),
             F.col("min_age"),
             F.col("is_expansion").cast("boolean")
         )
 
         rating_df = master_df.select(
             F.col("id").alias("game_id"),
-            F.col("users_rated"),
-            F.col("average_rating"),
-            F.col("rating_avearge"),
-            F.col("bayes_average"),
+            F.col("usersrated").alias("users_rated"),
+            F.col("average").alias("average_rating"),
+            F.col("bayesaverage").alias("bayes_average"),
             F.col("complexity_average"),
             F.col("owned_users")
         )
@@ -100,22 +99,22 @@ class ETLProcessor:
         """
 
         # 1. Load game table
-        game_df.write.jdbc(url=self.db_url, table="game", properties=self.db_properties, mode="overwrite")
+        game_df.write.jdbc(url=self.db_properties['url'], table="game", properties=self.db_properties, mode="overwrite")
 
         # 2. Load mechanic table
-        mechanic_df.write.jdbc(url=self.db_url, table='mechanic', mode='overwrite', properties=self.db_properties)
+        mechanic_df.write.jdbc(url=self.db_properties['url'], table='mechanic', mode='overwrite', properties=self.db_properties)
 
         # 3. Load domain table
-        domain_df.write.jdbc(url=self.db_url, table='domain', mode='overwrite', properties=self.db_properties)
+        domain_df.write.jdbc(url=self.db_properties['url'], table='domain', mode='overwrite', properties=self.db_properties)
 
         # 4. Load rating table
-        rating_df.write.jdbc(url=self.db_url, table='rating', mode='overwrite', properties=self.db_properties)
+        rating_df.write.jdbc(url=self.db_properties['url'], table='rating', mode='overwrite', properties=self.db_properties)
 
         # 5. Load game_mechanic junction table
-        game_mechanic_df.write.jdbc(url=self.db_url, table='game_mechanic', mode='overwrite', properties=self.db_properties)
+        game_mechanic_df.write.jdbc(url=self.db_properties['url'], table='game_mechanic', mode='overwrite', properties=self.db_properties)
 
         # 6. Load game_domain junction table
-        game_domain_df.write.jdbc(url=self.db_url, table='game_domain', mode='overwrite', properties=self.db_properties)
+        game_domain_df.write.jdbc(url=self.db_properties['url'], table='game_domain', mode='overwrite', properties=self.db_properties)
         
         log.info("Data successfully loaded into MySQL database.")
 
