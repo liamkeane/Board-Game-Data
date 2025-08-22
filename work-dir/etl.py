@@ -52,7 +52,7 @@ class ETLProcessor:
         game_df = master_df.select(
             F.col("id").alias("game_id"),
             F.col("name"),
-            F.col("yearpublished"),
+            F.col("yearpublished").alias("year_published"),
             F.col("min_players"),
             F.col("max_players"),
             F.col("play_time").alias("avg_playtime"),
@@ -63,7 +63,7 @@ class ETLProcessor:
         rating_df = master_df.select(
             F.col("id").alias("game_id"),
             F.col("usersrated").alias("users_rated"),
-            F.col("average").alias("average_rating"),
+            F.col("average").alias("rating_average"),
             F.col("bayesaverage").alias("bayes_average"),
             F.col("complexity_average"),
             F.col("owned_users")
@@ -99,22 +99,22 @@ class ETLProcessor:
         """
 
         # 1. Load game table
-        game_df.write.jdbc(url=self.db_properties['url'], table="game", properties=self.db_properties, mode="overwrite")
+        game_df.write.jdbc(url=self.db_properties['url'], table="game", properties=self.db_properties, mode="append")
 
         # 2. Load mechanic table
-        mechanic_df.write.jdbc(url=self.db_properties['url'], table='mechanic', mode='overwrite', properties=self.db_properties)
+        mechanic_df.write.jdbc(url=self.db_properties['url'], table='mechanic', mode='append', properties=self.db_properties)
 
         # 3. Load domain table
-        domain_df.write.jdbc(url=self.db_properties['url'], table='domain', mode='overwrite', properties=self.db_properties)
+        domain_df.write.jdbc(url=self.db_properties['url'], table='domain', mode='append', properties=self.db_properties)
 
         # 4. Load rating table
-        rating_df.write.jdbc(url=self.db_properties['url'], table='rating', mode='overwrite', properties=self.db_properties)
+        rating_df.write.jdbc(url=self.db_properties['url'], table='rating', mode='append', properties=self.db_properties)
 
         # 5. Load game_mechanic junction table
-        game_mechanic_df.write.jdbc(url=self.db_properties['url'], table='game_mechanic', mode='overwrite', properties=self.db_properties)
+        game_mechanic_df.write.jdbc(url=self.db_properties['url'], table='game_mechanic', mode='append', properties=self.db_properties)
 
         # 6. Load game_domain junction table
-        game_domain_df.write.jdbc(url=self.db_properties['url'], table='game_domain', mode='overwrite', properties=self.db_properties)
+        game_domain_df.write.jdbc(url=self.db_properties['url'], table='game_domain', mode='append', properties=self.db_properties)
         
         log.info("Data successfully loaded into MySQL database.")
 
