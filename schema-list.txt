@@ -1,0 +1,48 @@
+ID,Name,Year Published,Min Players,Max Players,Play Time,Min Age,Users Rated,Rating Average,BGG Rank,Complexity Average,Owned Users,Mechanics,Domains
+
+id,name,yearpublished,rank,bayesaverage,average,usersrated,is_expansion,abstracts_rank,cgs_rank,childrensgames_rank,familygames_rank,partygames_rank,strategygames_rank,thematic_rank,wargames_rank
+
+tables/entities:
+- game (bgg)
+    - game_id PK increment not null
+    - name VARCHAR(100)
+    - year_published INT
+    - min_players INT
+    - max_players INT
+    - avg_playtime INT
+    - min_age INT
+    - is_expansion BOOLEAN
+- rating (bgg) one-to-many
+    - rating_id PK increment
+    - rank (global)
+    - users_rated INT
+    - bayes_average DECIMAL(5, 2)
+    - rating_average DECIMAL(5 , 2)
+    - complexity_avg DECIMAL(5, 2)
+    - game_id FK
+    time willing...
+    - owned_users INT (melissa)
+- mechanics (melissa) many-to-many
+    - mechanic_id PK increment not null
+    - name
+- domains (melissa) many-to-many
+    - domain_id PK increment not null
+    - name
+- rank (bgg) If time willing...
+    - rank_id PK
+    - game_id FK
+    - abstracts_rank INT
+    - cgs_rank INT
+    - childrensgames_rank INT
+    - familygames_rank INT
+    - partygames_rank INT
+    - strategygames_rank INT
+    - thematic_rank INT
+    - wargames_rank INT
+(linking/junction tables)
+- game_mechanic
+    - game_id FK
+    - mechanic_id FK
+- game_domain
+    - game_id FK
+    - domain_id FK

@@ -1,0 +1,14 @@
+services:
+  spark:
+    build: ./leader
+    container_name: leader
+    hostname: leader
+    ports:
+      - 8081:8080 # Spark Web UI
+      - 7077:7077 # Spark leader port
+    volumes:
+      - ./work-dir:/opt/spark/work-dir
+      - ./conf:/opt/spark/conf
+      - ./input:/opt/spark/input
+      - ./output:/opt/spark/output
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark
